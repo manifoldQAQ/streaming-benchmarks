@@ -3,11 +3,11 @@
  Copyright 2015, Yahoo Inc.
  Licensed under the terms of the Apache License 2.0. Please see LICENSE file in the project root for terms.
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>yahoo-low-latency-bechmarks</artifactId>
+        <artifactId>yahoo-low-latency-benchmarks</artifactId>
         <groupId>com.yahoo.stream</groupId>
         <version>0.1.0</version>
     </parent>
@@ -25,7 +25,7 @@
             <artifactId>snakeyaml</artifactId>
         </dependency>
         <dependency>
-           <groupId>redis.clients</groupId>
+            <groupId>redis.clients</groupId>
             <artifactId>jedis</artifactId>
         </dependency>
     </dependencies>

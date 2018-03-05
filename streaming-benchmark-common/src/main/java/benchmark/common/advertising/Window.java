@@ -10,8 +10,8 @@ public class Window {
 
     @Override
     public boolean equals(Object other) {
-        if(other instanceof Window) {
-            return timestamp.equals(((Window)other).timestamp);
+        if (other instanceof Window) {
+            return timestamp.equals(((Window) other).timestamp);
         }
         return false;
     }

@@ -3,32 +3,27 @@
  */
 package apex.benchmark;
 
-import org.codehaus.jettison.json.JSONException;
-import org.codehaus.jettison.json.JSONObject;
-
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.netlet.util.DTThrowable;
+import org.codehaus.jettison.json.JSONException;
+import org.codehaus.jettison.json.JSONObject;
 
-public class DeserializeJSON extends BaseOperator
-{
-  public transient DefaultInputPort<String> input = new DefaultInputPort<String>()
-    {
-      @Override
-      public void process(String t)
-      {
-        JSONObject jsonObject;
-        try {
-          jsonObject = new JSONObject(t);
-        } catch (JSONException e) {
-          throw DTThrowable.wrapIfChecked(e);
+public class DeserializeJSON extends BaseOperator {
+    public transient DefaultOutputPort<JSONObject> output = new DefaultOutputPort();
+    public transient DefaultInputPort<String> input = new DefaultInputPort<String>() {
+        @Override
+        public void process(String t) {
+            JSONObject jsonObject;
+            try {
+                jsonObject = new JSONObject(t);
+            } catch (JSONException e) {
+                throw DTThrowable.wrapIfChecked(e);
+            }
+
+            output.emit(jsonObject);
         }
-
-        output.emit(jsonObject);
-      }
-  };
-
-  public transient DefaultOutputPort<JSONObject> output = new DefaultOutputPort();
+    };
 }
 

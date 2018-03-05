@@ -22,12 +22,11 @@ public class RedisAdCampaignCache {
 
     public String execute(String ad_id) {
         String campaign_id = ad_to_campaign.get(ad_id);
-        if(campaign_id == null) {
+        if (campaign_id == null) {
             campaign_id = jedis.get(ad_id);
-            if(campaign_id == null) {
+            if (campaign_id == null) {
                 return null;
-            }
-            else {
+            } else {
                 ad_to_campaign.put(ad_id, campaign_id);
             }
         }

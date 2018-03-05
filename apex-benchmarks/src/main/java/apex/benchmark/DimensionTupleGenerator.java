@@ -5,50 +5,40 @@ package apex.benchmark;
 
 import java.util.Random;
 
-public class DimensionTupleGenerator
-{
-  public static final int maxClicks = 1000;
-  
-  public static final String adIdPrefix = "ad";
-  protected int adIdSize = 100;
-  
-  public static final String compaignIdPrefix = "campaign";
-  protected int campaignSize = 1000;
+public class DimensionTupleGenerator {
+    public static final int maxClicks = 1000;
 
-  
-  protected static final Random random = new Random();
-  public DimensionTuple next()
-  {
-    return new DimensionTuple(randomAdId(), randomCampaignId(), System.currentTimeMillis(), random.nextInt(maxClicks));
-  }
-  
-  public String randomCampaignId()
-  {
-    return compaignIdPrefix + random.nextInt(campaignSize);
-  }
-  
-  public String randomAdId()
-  {
-    return adIdPrefix + random.nextInt(adIdSize);
-  }
+    public static final String adIdPrefix = "ad";
+    public static final String compaignIdPrefix = "campaign";
+    protected static final Random random = new Random();
+    protected int adIdSize = 100;
+    protected int campaignSize = 1000;
 
-  public int getAdIdSize()
-  {
-    return adIdSize;
-  }
+    public DimensionTuple next() {
+        return new DimensionTuple(randomAdId(), randomCampaignId(), System.currentTimeMillis(), random.nextInt(maxClicks));
+    }
 
-  public void setAdIdSize(int adIdSize)
-  {
-    this.adIdSize = adIdSize;
-  }
+    public String randomCampaignId() {
+        return compaignIdPrefix + random.nextInt(campaignSize);
+    }
 
-  public int getCampaignSize()
-  {
-    return campaignSize;
-  }
+    public String randomAdId() {
+        return adIdPrefix + random.nextInt(adIdSize);
+    }
 
-  public void setCampaignSize(int campaignSize)
-  {
-    this.campaignSize = campaignSize;
-  }
+    public int getAdIdSize() {
+        return adIdSize;
+    }
+
+    public void setAdIdSize(int adIdSize) {
+        this.adIdSize = adIdSize;
+    }
+
+    public int getCampaignSize() {
+        return campaignSize;
+    }
+
+    public void setCampaignSize(int campaignSize) {
+        this.campaignSize = campaignSize;
+    }
 }

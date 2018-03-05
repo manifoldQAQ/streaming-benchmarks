@@ -6,7 +6,6 @@ package benchmark.common.advertising;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import redis.clients.jedis.Jedis;
 
 import java.util.HashMap;
@@ -16,20 +15,26 @@ import java.util.UUID;
 
 public class CampaignProcessorCommon {
     private static final Logger LOG = LoggerFactory.getLogger(CampaignProcessorCommon.class);
+    private static final Long time_divisor = 10000L; // 10 second windows
     private Jedis jedis;
     private Jedis flush_jedis;
     private Long lastWindowMillis;
     // Bucket -> Campaign_id -> Window
     private LRUHashMap<Long, HashMap<String, Window>> campaign_windows;
     private Set<CampaignWindowPair> need_flush;
-
     private long processed = 0;
-
-    private static final Long time_divisor = 10000L; // 10 second windows
 
     public CampaignProcessorCommon(String redisServerHostname) {
         jedis = new Jedis(redisServerHostname);
         flush_jedis = new Jedis(redisServerHostname);
+    }
+
+    public static Window redisGetWindow(Long timeBucket, Long time_divisor) {
+
+        Window win = new Window();
+        win.timestamp = Long.toString(timeBucket * time_divisor);
+        win.seenCount = 0L;
+        return win;
     }
 
     public void prepare() {
@@ -60,7 +65,7 @@ public class CampaignProcessorCommon {
         window.seenCount++;
 
         CampaignWindowPair newPair = new CampaignWindowPair(campaign_id, window);
-        synchronized(need_flush) {
+        synchronized (need_flush) {
             need_flush.add(newPair);
         }
         processed++;
@@ -95,14 +100,6 @@ public class CampaignProcessorCommon {
             }
             need_flush.clear();
         }
-    }
-
-    public static Window redisGetWindow(Long timeBucket, Long time_divisor) {
-
-        Window win = new Window();
-        win.timestamp = Long.toString(timeBucket * time_divisor);
-        win.seenCount = 0L;
-        return win;
     }
 
     // Needs to be rewritten now that redisGetWindow has been simplified.

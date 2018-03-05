@@ -15,9 +15,9 @@ class CampaignWindowPair {
 
     @Override
     public boolean equals(Object other) {
-        if(other instanceof CampaignWindowPair) {
-            return campaign.equals(((CampaignWindowPair)other).campaign)
-                && window.equals(((CampaignWindowPair)other).window);
+        if (other instanceof CampaignWindowPair) {
+            return campaign.equals(((CampaignWindowPair) other).campaign)
+                    && window.equals(((CampaignWindowPair) other).window);
         }
         return false;
     }
