@@ -21,7 +21,7 @@ object KafkaRedisAdvertisingStream {
 
 
   def main(args: Array[String]) {
-
+    // Get configuration from local config file
     val commonConfig = Utils.findAndReadConfigFile(args(0), true).asInstanceOf[java.util.Map[String, Any]]
     val batchSize = commonConfig.get("spark.batchtime") match {
       case n: Number => n.longValue()
@@ -31,7 +31,6 @@ object KafkaRedisAdvertisingStream {
       case s: String => s
       case other => throw new ClassCastException(other + " not a String")
     }
-
     val redisHost = commonConfig.get("redis.host") match {
       case s: String => s
       case other => throw new ClassCastException(other + " not a String")

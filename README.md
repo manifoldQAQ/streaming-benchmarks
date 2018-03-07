@@ -19,4 +19,7 @@ We revisit these benchmarks without bias, on a reasonably scaled cluster.
 - Memory: 252G.
 - Disk: 3.2T local disk.
 - Network interface: Intel I350 1000M Network connection.
-- Cluster: 1 master and 3 slaves (shall be extended in the future) 
+- Cluster: 1 master and 3 slaves (shall be extended in the future)
+
+## Commands
+All the operations are wrapped in `epcc.sh`. 

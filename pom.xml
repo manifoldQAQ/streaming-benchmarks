@@ -29,7 +29,6 @@ Licensed under the terms of the Apache License 2.0. Please see LICENSE file in t
         <slf4j.version>1.7.25</slf4j.version>
         <commons-cli.version>1.4</commons-cli.version>
         <snakeyaml.version>1.20</snakeyaml.version>
-        <apex.version>3.6.0</apex.version>
     </properties>
 
 
@@ -142,7 +141,6 @@ Licensed under the terms of the Apache License 2.0. Please see LICENSE file in t
         <module>storm-benchmarks</module>
         <module>flink-benchmarks</module>
         <module>spark-benchmarks</module>
-        <module>apex-benchmarks</module>
     </modules>
 
     <build>
