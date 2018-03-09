@@ -20,16 +20,19 @@ create_kafka_topic() {
 
 
 run() {
+    echo "===== " $1 "======="
     if [ $1 = "CREATE_KAFKA_TOPIC" ]; then
         create_kafka_topic
     elif [ $1 = "START_ZK"    ]; then       # Zookeeper
         start_if_needed QuorumPeerMain Zookeeper 10  "$ZK_HOME/bin/zkServer.sh start"
     elif [ $1 = "STOP_ZK"     ]; then
         stop_if_needed QuorumPeerMain Zookeeper
-    elif [ $1 = "START_REDIS" ]; then       # Redis
-        ssh ${REDIS_HOST} "redis-server ${REDIS_HOME}/redis.conf --daemonize yes" &
+    elif [ $1 = "START_REDIS" ]; then       # Redis: PASSING
+        ssh ${REDIS_HOST} "${INSTALL_ROOT}/bin/redis-server ${REDIS_HOME}/redis.conf --daemonize yes"
+        # TODO emit init data to it
     elif [ $1 = "STOP_REDIS"  ]; then
-        ssh ${REDIS_HOST} "redis-cli shutdown" &
+        ssh ${REDIS_HOST} "${INSTALL_ROOT}/bin/redis-cli shutdown"
+        # TODO remove the dumped database
     elif [ $1 = "START_KAFKA" ]; then       # Kafka
         for slave in ${SLAVES[*]}; do
             ssh ${slave} "${KAFKA_HOME}/bin/kafka-server-start.sh -daemon ${KAFKA_HOME}/config/server.properties"
@@ -38,11 +41,10 @@ run() {
         for slave in ${SLAVES[*]}; do
             ssh ${slave} "${KAFKA_HOME}/bin/kafka-server-stop.sh"
         done
-    elif [ $1 = "START_SPARK" ]; then       # Spark
-        ${SPARK_HOME}/sbin/start-all.sh &
-        sleep 5
+    elif [ $1 = "START_SPARK" ]; then       # Spark PASSING
+        ${SPARK_HOME}/sbin/start-all.sh
     elif [ $1 = "STOP_SPARK"  ]; then
-        ${SPARK_HOME}/sbin/stop-all.sh &
+        ${SPARK_HOME}/sbin/stop-all.sh
     elif [ $1 = "START_STORM" ]; then       # Storm
         ${STORM_HOME}/bin/storm nimbus &
         for slave in ${SLAVES[*]}; do

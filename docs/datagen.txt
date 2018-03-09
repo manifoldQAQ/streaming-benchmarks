@@ -1,0 +1,41 @@
+Experiment code generation:
+
+0. User defined conf:
+    (def num-campaigns 100)
+    (def view-capacity-per-window 10)
+    (def kafka-event-count (* 10 1000000))  millions of events
+    (def time-divisor 10000) 10 seconds
+
+1. Initial redis data prep: lein run -n
+    fn do-new-setup:
+        - flushes redis
+        - generate unique campaigns
+        - insert a redis collection of all the campaign ids
+
+2. Run data generation: lein run -r -t [-w]
+    key statistics:
+        ads: a list of unique ad ids, default to 10*num-campaings
+        page-ids: a list of page ids, default to 100
+        user-ids: a list of user ids, default to 100
+        start-time-ns: current system time in ns
+        period-ns: how many event per ns
+        times: timestamps for each event, seperated by period ns.
+    execution logic:
+        1. open producer via clj-kafka binding (producer config key-serializer value-serializer)
+        2. loop through timestamps, if lag behind print error msgs, then sends an record to
+           a Kafka broker
+        3. the kafka record is constructed via (record topic value),
+            value is constructed via (.getBytes (make-kafka-event-at t skew ads users pageids))
+    kafka event construction: a kafka event is a string, containing useful information:
+        user_id, page_id, ad_type, event_type, event_time, ip_address
+        where ad types are "banner", "modal", "sponsored-search", "mail", "mobile"
+              event types are "view", "click", "purchase"
+
+3. Data statistics: lein run -g
+    when the program exits, we gather info to get system metrics.
+    Logic: for all campaign in Redis campaigns collection:
+               for all windows in the time duration:
+                   get seen_count and time_updated
+                   get the latency from time_updated-window_time
+
+

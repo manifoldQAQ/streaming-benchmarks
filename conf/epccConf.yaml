@@ -1,13 +1,15 @@
 # Configuration in epcc cluster
 kafka.brokers:
-    - "localhost"
+    - "dell-08.epcc"
+    - "dell-09.epcc"
+    - "dell-10.epcc"
 
 zookeeper.servers:
-    - "localhost"
+    - "dell-08.epcc:5215"
 
 kafka.port: 9092
 zookeeper.port: 2181
-redis.host: "dell-08.epcc:6379"
+redis.host: "dell-08.epcc"
 kafka.topic: "ad-events"
 kafka.partitions: 2
 

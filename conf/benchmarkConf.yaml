@@ -11,7 +11,7 @@ zookeeper.servers:
 
 kafka.port: 9092
 zookeeper.port: 5215
-redis.host: "dell-08.epcc:6379
+redis.host: "dell-08.epcc:6379"
 kafka.topic: "ad-events"
 kafka.partitions: 1
 

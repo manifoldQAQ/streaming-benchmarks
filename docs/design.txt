@@ -1,0 +1,12 @@
+Dataflow:
+    Kafka Json Events ->
+    Json Parser -> Filter -> Projection -> Join -> Windowed Aggregation -> Store ->
+    Redis K/V Store
+
+Input Schema:
+    user_id, page_id, ad_id: UUID
+    ad_type: String in banner, modal, sponsored-search, mail, mobile
+    event_type: String in view, click, purchase
+    ip_address: String
+
+SLA: 1 second latency
