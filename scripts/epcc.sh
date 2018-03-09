@@ -29,10 +29,14 @@ run() {
         stop_if_needed QuorumPeerMain Zookeeper
     elif [ $1 = "START_REDIS" ]; then       # Redis: PASSING
         ssh ${REDIS_HOST} "${INSTALL_ROOT}/bin/redis-server ${REDIS_HOME}/redis.conf --daemonize yes"
-        # TODO emit init data to it
+        # emit init data to it
+        cd ../data
+        ${LEIN} run -n --configPath ../conf/epccConf.yaml
+        cd ../scripts
     elif [ $1 = "STOP_REDIS"  ]; then
         ssh ${REDIS_HOST} "${INSTALL_ROOT}/bin/redis-cli shutdown"
-        # TODO remove the dumped database
+        # remove the dumped database
+        ssh ${REDIS_HOST} "rm ${REDIS_HOME}/data/dump.rdb"
     elif [ $1 = "START_KAFKA" ]; then       # Kafka
         for slave in ${SLAVES[*]}; do
             ssh ${slave} "${KAFKA_HOME}/bin/kafka-server-start.sh -daemon ${KAFKA_HOME}/config/server.properties"
