@@ -4,6 +4,7 @@ import java.util
 import java.util.UUID
 
 import benchmark.common.Utils
+import org.apache.kafka.common.serialization.StringDeserializer
 import org.apache.spark.SparkConf
 import org.apache.spark.streaming.kafka010.ConsumerStrategies.Subscribe
 import org.apache.spark.streaming.kafka010.KafkaUtils
@@ -40,10 +41,11 @@ object KafkaRedisAdvertisingStream {
     val sparkConf = new SparkConf().setAppName("KafkaRedisAdvertisingStream")
     val ssc = new StreamingContext(sparkConf, Milliseconds(batchSize))
 
-    val kafkaHosts = commonConfig.get("kafka.brokers").asInstanceOf[java.util.List[String]] match {
-      case l: java.util.List[String] => l.asScala
+    val kafkaHosts: List[String] = commonConfig.get("kafka.brokers").asInstanceOf[java.util.List[String]] match {
+      case l: java.util.List[String] => l.asScala.toList
       case other => throw new ClassCastException(other + " not a List[String]")
     }
+    println(kafkaHosts)
     val kafkaPort = commonConfig.get("kafka.port") match {
       case n: Number => n.toString
       case other => throw new ClassCastException(other + " not a Number")
@@ -52,7 +54,14 @@ object KafkaRedisAdvertisingStream {
     // Create direct kafka stream with brokers and topics
     val topicsSet = Set(topic)
     val brokers = joinHosts(kafkaHosts, kafkaPort)
-    val kafkaParams = Map[String, String]("metadata.broker.list" -> brokers, "auto.offset.reset" -> "smallest")
+    val kafkaParams = Map[String, Object](
+      "bootstrap.servers" -> brokers,
+      "key.deserializer" -> classOf[StringDeserializer],
+      "value.deserializer" -> classOf[StringDeserializer],
+      "group.id" -> "ad test",
+      "auto.offset.reset" -> "earliest",
+      "enable.auto.commit" -> (false: java.lang.Boolean)
+    )
     System.err.println("Trying to connect to Kafka at " + brokers)
     val messages = KafkaUtils.createDirectStream[String, String](
       ssc,
@@ -103,15 +112,7 @@ object KafkaRedisAdvertisingStream {
   }
 
   def joinHosts(hosts: Seq[String], port: String): String = {
-    val joined = new StringBuilder()
-    hosts.foreach({
-      if (joined.nonEmpty) {
-        joined.append(",")
-      }
-
-      joined.append(_).append(":").append(port)
-    })
-    joined.toString()
+    hosts.map(_ + ":" + port).mkString(",")
   }
 
   def parseJson(jsonString: String): Array[String] = {

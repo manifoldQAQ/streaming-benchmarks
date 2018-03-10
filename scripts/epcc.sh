@@ -80,8 +80,8 @@ run() {
     elif [ $1 = "START_SPARK_PROCESSING" ]; then # Spark submit
         ${SPARK_HOME}/bin/spark-submit \
             --master spark://dell-01.epcc:7078 \
-            --class KafkaRedisAdvertisingStream \
-            ../spark-benchmarks/target/spark-benchmarks-0.1.0.jar ../${CONF_FILE} &
+            --class spark.benchmark.KafkaRedisAdvertisingStream \
+            ../spark-benchmarks/target/spark-benchmarks-0.1.0.jar ../${CONF_FILE} > spark.log 2>&1 &
         sleep 5
     elif [ $1 = "STOP_SPARK_PROCESSING"  ]; then
         stop_if_needed spark.benchmark.KafkaRedisAdvertisingStream "Spark Client Process"

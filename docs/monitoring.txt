@@ -1,0 +1,7 @@
+Spark: WebUI dell-01.epcc:8081
+       Current Job: dell-01.epcc:4040
+       History server: dell-01.epcc:18081
+
+Kafka: Kafka manager at dell-01.epcc:9333
+
+Cluster management: dell-01.epcc:19999
