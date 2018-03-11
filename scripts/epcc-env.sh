@@ -39,6 +39,6 @@ SLAVES=("dell-08.epcc" "dell-09.epcc" "dell-10.epcc")
 # test parameters
 TOPIC=${TOPIC:-"ad-events"}
 PARTITIONS=${PARTITIONS:-2}
-LOAD=${LOAD:-1000}
+LOAD=${LOAD:-125000}
 CONF_FILE=./conf/epccConf.yaml
 TEST_TIME=${TEST_TIME:-240}

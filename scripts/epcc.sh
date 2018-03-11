@@ -54,6 +54,7 @@ run() {
         for slave in ${SLAVES[*]}; do
             ssh ${slave} "${STORM_HOME}/bin/storm supervisor" &
         done
+        ${STORM_HOME}/bin/storm ui &
         sleep 5
     elif [ $1 = "STOP_STORM"  ]; then
         jps | grep nimbus | cut -d' ' -f1 | xargs kill -9

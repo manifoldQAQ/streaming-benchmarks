@@ -26,7 +26,7 @@ Licensed under the terms of the Apache License 2.0. Please see LICENSE file in t
         <json.version>20180130</json.version>
         <jedis.version>2.9.0</jedis.version>
         <sedis.version>1.2.2</sedis.version>
-        <slf4j.version>1.7.25</slf4j.version>
+        <slf4j.version>1.7.21</slf4j.version>
         <commons-cli.version>1.4</commons-cli.version>
         <snakeyaml.version>1.20</snakeyaml.version>
     </properties>

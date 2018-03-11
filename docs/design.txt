@@ -7,6 +7,18 @@ Input Schema:
     user_id, page_id, ad_id: UUID
     ad_type: String in banner, modal, sponsored-search, mail, mobile
     event_type: String in view, click, purchase
+    time: in ms
     ip_address: String
 
+Redis: campaigns list, ad_id->campaign_id mapping,
+
 SLA: 1 second latency
+
+
+Performance tuning:
+    Redis: normally 50k-100k QPS
+        redis-benchmark -c 2000 -n 1000000 -d 64 -t get,hmget,hset,lpush,hincrby
+        bounded by network bandwidth 1000M net interface, 150k QPS
+    Spark: num-of-executors? cores in each executor? each JVM memory? Shuffling?
+           partition strategy? persist?
+           InputDirectStream: Prefer Brokers/Consistent/Fixed
