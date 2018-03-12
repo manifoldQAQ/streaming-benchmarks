@@ -67,8 +67,9 @@ Licensed under the terms of the Apache License 2.0. Please see LICENSE file in t
                 <version>${storm.version}</version>
             </dependency>
             <dependency>
+                <!-- DO NOT use the storm-kafka package, which is for pre 0.8 Kafka -->
                 <groupId>org.apache.storm</groupId>
-                <artifactId>storm-kafka</artifactId>
+                <artifactId>storm-kafka-client</artifactId>
                 <version>${storm.version}</version>
             </dependency>
             <!-- flink -->

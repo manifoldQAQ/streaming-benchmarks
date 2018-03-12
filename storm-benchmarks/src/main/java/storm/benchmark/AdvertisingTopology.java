@@ -11,15 +11,15 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Options;
-import org.apache.log4j.Logger;
 import org.apache.storm.Config;
 import org.apache.storm.LocalCluster;
 import org.apache.storm.StormSubmitter;
-import org.apache.storm.kafka.KafkaSpout;
-import org.apache.storm.kafka.SpoutConfig;
-import org.apache.storm.kafka.StringScheme;
-import org.apache.storm.kafka.ZkHosts;
-import org.apache.storm.spout.SchemeAsMultiScheme;
+//import org.apache.storm.kafka.KafkaSpout;
+//import org.apache.storm.kafka.SpoutConfig;
+//import org.apache.storm.kafka.StringScheme;
+//import org.apache.storm.kafka.ZkHosts;
+import org.apache.storm.kafka.spout.KafkaSpout;
+import org.apache.storm.kafka.spout.KafkaSpoutConfig;
 import org.apache.storm.task.OutputCollector;
 import org.apache.storm.task.TopologyContext;
 import org.apache.storm.topology.OutputFieldsDeclarer;
@@ -29,10 +29,14 @@ import org.apache.storm.tuple.Fields;
 import org.apache.storm.tuple.Tuple;
 import org.apache.storm.tuple.Values;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 //import org.apache.storm.utils.Utils;
 
@@ -41,23 +45,7 @@ import java.util.UUID;
  */
 public class AdvertisingTopology {
 
-    private static String joinHosts(List<String> hosts, String port) {
-        String joined = null;
-        for (String s : hosts) {
-            if (joined == null) {
-                joined = "";
-            } else {
-                joined += ",";
-            }
-
-            joined += s + ":" + port;
-        }
-        return joined;
-    }
-
     public static void main(String[] args) throws Exception {
-        TopologyBuilder builder = new TopologyBuilder();
-
         Options opts = new Options();
         opts.addOption("conf", true, "Path to the config file.");
 
@@ -66,8 +54,11 @@ public class AdvertisingTopology {
         String configPath = cmd.getOptionValue("conf");
         Map commonConfig = Utils.findAndReadConfigFile(configPath, true);
 
-        String zkServerHosts = joinHosts((List<String>) commonConfig.get("zookeeper.servers"),
-                Integer.toString((Integer) commonConfig.get("zookeeper.port")));
+        /* configs from conf file */
+//        String zkServerHosts = joinHosts((List<String>) commonConfig.get("zookeeper.servers"),
+//                Integer.toString((Integer) commonConfig.get("zookeeper.port")));
+        String kafkaBootstrapHosts = joinHosts((List<String>) commonConfig.get("kafka.bootstrap.servers"),
+                Integer.toString((Integer) commonConfig.get("kafka.bootstrap.port")));
         String redisServerHost = (String) commonConfig.get("redis.host");
         String kafkaTopic = (String) commonConfig.get("kafka.topic");
         int kafkaPartitions = ((Number) commonConfig.get("kafka.partitions")).intValue();
@@ -76,13 +67,20 @@ public class AdvertisingTopology {
         int cores = ((Number) commonConfig.get("process.cores")).intValue();
         int parallel = Math.max(1, cores / 7);
 
-        ZkHosts hosts = new ZkHosts(zkServerHosts);
+        /* storm-related conf */
+//        ZkHosts hosts = new ZkHosts(zkServerHosts);
+//        SpoutConfig spoutConfig = new SpoutConfig(hosts, kafkaTopic, "/" + kafkaTopic, UUID.randomUUID().toString());
+//        spoutConfig.scheme = new SchemeAsMultiScheme(new StringScheme());
+//        KafkaSpout kafkaSpout = new KafkaSpout(spoutConfig);
 
+        /* new API */
+        KafkaSpoutConfig newSpoutConfig = KafkaSpoutConfig
+                .builder(kafkaBootstrapHosts, kafkaTopic)
+                .setFirstPollOffsetStrategy(KafkaSpoutConfig.FirstPollOffsetStrategy.LATEST)
+                .build();
+        KafkaSpout kafkaSpout = new KafkaSpout(newSpoutConfig);
 
-        SpoutConfig spoutConfig = new SpoutConfig(hosts, kafkaTopic, "/" + kafkaTopic, UUID.randomUUID().toString());
-        spoutConfig.scheme = new SchemeAsMultiScheme(new StringScheme());
-        KafkaSpout kafkaSpout = new KafkaSpout(spoutConfig);
-
+        TopologyBuilder builder = new TopologyBuilder();
         builder.setSpout("ads", kafkaSpout, kafkaPartitions);
         builder.setBolt("event_deserializer", new DeserializeBolt(), parallel).shuffleGrouping("ads");
         builder.setBolt("event_filter", new EventFilterBolt(), parallel).shuffleGrouping("event_deserializer");
@@ -107,8 +105,24 @@ public class AdvertisingTopology {
         }
     }
 
+    private static String joinHosts(List<String> hosts, String port) {
+        StringBuilder joined = null;
+        for (String s : hosts) {
+            if (joined == null) {
+                joined = new StringBuilder();
+            } else {
+                joined.append(",");
+            }
+            joined.append(s).append(":").append(port);
+        }
+
+        assert joined != null;
+        return joined.toString();
+    }
+
     public static class DeserializeBolt extends BaseRichBolt {
         OutputCollector _collector;
+        private static final Logger LOG = LoggerFactory.getLogger(DeserializeBolt.class);
 
         @Override
         public void prepare(Map conf, TopologyContext context, OutputCollector collector) {
@@ -117,8 +131,8 @@ public class AdvertisingTopology {
 
         @Override
         public void execute(Tuple tuple) {
-
-            JSONObject obj = new JSONObject(tuple.getString(0));
+            // tuple format: topic, partition, offset, key, value
+            JSONObject obj = new JSONObject(tuple.getString(4));
             _collector.emit(tuple, new Values(obj.getString("user_id"),
                     obj.getString("page_id"),
                     obj.getString("ad_id"),
@@ -215,7 +229,7 @@ public class AdvertisingTopology {
 
     public static class CampaignProcessor extends BaseRichBolt {
 
-        private static final Logger LOG = Logger.getLogger(CampaignProcessor.class);
+        private static final Logger LOG = LoggerFactory.getLogger(CampaignProcessor.class);
 
         private OutputCollector _collector;
         transient private CampaignProcessorCommon campaignProcessorCommon;
@@ -245,4 +259,5 @@ public class AdvertisingTopology {
         public void declareOutputFields(OutputFieldsDeclarer declarer) {
         }
     }
+
 }

@@ -4,12 +4,19 @@ kafka.brokers:
     - "dell-09.epcc"
     - "dell-10.epcc"
 
+kafka.bootstrap.servers:
+    - "dell-08.epcc"
+
+kafka.bootstrap.port: 9092
+
+
 zookeeper.servers:
-    - "dell-08.epcc:5215"
+    - "dell-01.epcc"
+zookeeper.port: 5215
 
 kafka.port: 9092
-zookeeper.port: 2181
 redis.host: "dell-08.epcc"
+
 kafka.topic: "ad-events"
 kafka.partitions: 2
 
@@ -17,7 +24,7 @@ process.hosts: 1
 process.cores: 4
 
 #STORM Specific
-storm.workers: 1
+storm.workers: 3
 storm.ackers: 2
 
 #Spark Specific

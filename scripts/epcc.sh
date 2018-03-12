@@ -54,7 +54,7 @@ run() {
         for slave in ${SLAVES[*]}; do
             ssh ${slave} "${STORM_HOME}/bin/storm supervisor" &
         done
-        ${STORM_HOME}/bin/storm ui &
+#        ${STORM_HOME}/bin/storm ui &
         sleep 5
     elif [ $1 = "STOP_STORM"  ]; then
         jps | grep nimbus | cut -d' ' -f1 | xargs kill -9
@@ -88,21 +88,21 @@ run() {
         stop_if_needed spark.benchmark.KafkaRedisAdvertisingStream "Spark Client Process"
     elif [ $1 = "START_STORM_PROCESSING" ]; then # Storm submit
         ${STORM_HOME}/bin/storm jar \
-            ../storm-benchmarks/target/storm-benchmarks-0.1.0.jar storm.benchmark.AdvertisingTopology test-topo -conf ../${CONF_FILE}
-        sleep 15
+            ../storm-benchmarks/target/storm-benchmarks-0.1.0.jar storm.benchmark.AdvertisingTopology test-topo -conf ../${CONF_FILE} > storm.log 2>&1
+        sleep 5
     elif [ $1 = "STOP_STORM_PROCESSING"  ]; then
         ${STORM_HOME}/bin/storm kill -w 0 test-topo || true
-        sleep 10
+        sleep 5
     elif [ $1 = "START_FLINK_PROCESSING" ]; then # Flink submit
         ${FLINK_HOME} run ../flink-benchmarks/target/flink-benchmarks-0.1.0.jar --confPath ../${CONF_FILE} &
-        sleep 3
+        sleep 5
     elif [ $1 = "STOP_FLINK_PROCESSING"  ]; then
         FLINK_ID=`"$FLINK_HOME/bin/flink" list | grep 'Flink Streaming Job' | awk '{print $4}'; true`
         if [ "$FLINK_ID" == "" ]; then
             echo "Could not find streaming job to kill"
         else
           "$FLINK_HOME/bin/flink" cancel $FLINK_ID
-            sleep 3
+            sleep 5
         fi
     elif [ $1 = "SPARK_TEST" ]; then
         run "START_REDIS"
